@@ -39,14 +39,6 @@
   - import_role:
       name: config-samba            
 
-- hosts: es-master
-  become: yes
-  tasks:   
-  - import_role:
-      name: install-cifs
-  - import_role:
-      name: mount-share
-      
 ### mount share on all elastic nodes es-master, es-data-hot, es-data-warm
 - hosts: es-master
   become: yes
@@ -71,6 +63,15 @@
       name: install-cifs
   - import_role:
       name: mount-share
+      
+- hosts: es-ingest
+  become: yes
+  tasks:   
+  - import_role:
+      name: install-cifs
+  - import_role:
+      name: mount-share
+      
 ### end mount share on all elastic nodes
 
 - hosts: es-master
@@ -134,3 +135,4 @@
       name: install-elastic
   - import_role:
       name: config-elastic
+

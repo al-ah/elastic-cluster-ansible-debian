@@ -1,0 +1,3 @@
+
+## file path that shared with samba in es_snaphot host , comment it if not exists
+es_snapshot_share_path_parent: "/shared_drive"

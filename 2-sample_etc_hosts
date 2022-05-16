@@ -1,0 +1,26 @@
+127.0.0.1	localhost
+
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+192.168.220.140 es_controller es_controller.DOMAIN_NAME
+
+192.168.220.141 es-master-01 es-master-01.DOMAIN_NAME
+192.168.220.142 es-master-02 es-master-02.DOMAIN_NAME
+192.168.220.143 es-master-03 es-master-03.DOMAIN_NAME
+
+192.168.220.145 es-data-hot-01 es-data-hot-01.DOMAIN_NAME
+192.168.220.145 es-data-hot-02 es-data-hot-02.DOMAIN_NAME
+192.168.220.146 es-data-hot-03 es-data-hot-03.DOMAIN_NAME
+192.168.220.147 es-data-hot-04 es-data-hot-04.DOMAIN_NAME
+
+192.168.220.148 es-data-warm-01 es-data-warm-01.DOMAIN_NAME
+
+192.168.220.149 es-ingest-01 es-ingest-01.DOMAIN_NAME
+
+192.168.220.149 es-snapshot-01 es-snapshot-01.DOMAIN_NAME
+
+
+

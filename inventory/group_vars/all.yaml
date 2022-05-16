@@ -1,0 +1,50 @@
+domain_name: es.org
+this_ansible_folder: "elastic-cluster-ansible-debian"
+elastic_version: 8.2.0
+kibana_version: 8.2.0
+
+admin_user: admin
+admin_password: P@ssw0rd
+customer_user: test
+customer_password: P@ssw0rd
+insert_data_pass: P@ssw0rd
+read_data_pass: P@ssw0rd
+elastic_user_pass: P@ssw0rd
+kibana_system_pass: P@ssw0rd
+logstash_system_pass: P@ssw0rd
+
+## system user for access share files in es_snapshot host
+es_snapshot_samba_username: "es_share"
+es_snapshot_samba_password: "P@ssw0rd"
+
+installation_files: /debian-packages
+timezone: Asia/Tehran
+certificate_path: elastic-certs
+
+elastic_cluster_name: production_cluster
+## elastic master nodes in cluster
+elastic_discovery_seed_hosts: ["es-master-01","es-master-02","es-master-03"]
+elastic_cluster_initial_master_nodes: ["es-master-01"]
+
+elastic_path_repo_local: "/elasticsearch_snapshots_local"
+## maped share path, comment it if not exists
+elastic_path_repo_share: "/elasticsearch_snapshots_share"
+
+## used for shared path.repo in elasticsearch nodes
+es_snapshot_share_host: "es-snapshot-01"
+es_snapshot_share_path_folder: "snapshots"
+
+kibana_port: 443
+#kibana_default_dashboard_id: 123
+
+## use in kibana for connect to elasticsearch (without http/https )
+kibana_elasticsearch_hosts: [ "https://es-data-hot-01.{{ domain_name }}:9200" ]
+
+## settings to place into the settings.index for beats indices
+beats_number_of_shards: 4
+beats_number_of_replicas: 0
+beats_codec: best_compression
+
+## use in elastic agent and logstash for connect to elasticsearch (without http/https )
+ingest_data_hosts: [ "https://es-ingest-01.{{ domain_name }}:9200" ]
+

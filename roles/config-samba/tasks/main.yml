@@ -1,0 +1,58 @@
+---
+# tasks file for config-samba
+
+- name: stop samba service 
+  systemd:
+    name: smbd.service
+    state: stopped
+    
+- name: copy smb.conf
+  template: 
+    src: smb.conf.j2 
+    dest: /etc/samba/smb.conf 
+
+- name: Add the user '{{ es_snapshot_samba_username }}' a primary group of '{{ es_snapshot_samba_username }}'
+  ansible.builtin.user:
+    name: '{{ es_snapshot_samba_username }}'
+    password: "{{ es_snapshot_samba_password | password_hash('sha512') }}"
+  ignore_errors: yes
+    
+- name: "smbpasswd -a {{ es_snapshot_samba_username }}"  
+  expect:
+    command: "smbpasswd -a {{ es_snapshot_samba_username }}" 
+    responses:
+      (.*)New SMB password(.*): "{{ es_snapshot_samba_password }}"  
+      (.*)Retype new SMB password(.*): "{{ es_snapshot_samba_password }}"  
+  ignore_errors: yes
+  timeout: 300
+    
+- name: 'check {{ es_snapshot_share_path_parent }} directory exists' 
+  stat:
+    path: '{{ es_snapshot_share_path_parent }}'
+  register: samba_directorio
+    
+- name: 'directory {{ es_snapshot_share_path_parent }} does not exists'  
+  pause:
+    prompt: "Before continuing the process, please check in the other terminal that the required {{ es_snapshot_share_path_parent }} directory have been created on {{ ansible_host }} so that the continuation of the process will not be a problem. Are you sure to continue? (yes/no)"
+  register: confirm_execution_samba   
+  when: samba_directorio.stat.exists == false
+
+- name: 'Creates {{ es_snapshot_share_path_parent }}/{{ es_snapshot_share_path_folder }} directory'
+  file:
+    path: '{{ es_snapshot_share_path_parent }}/{{ es_snapshot_share_path_folder }}'
+    state: directory
+    owner: "{{ es_snapshot_samba_username }}" 
+    group: "{{ es_snapshot_samba_username }}" 
+  
+- name: start samba service 
+  systemd:
+    name: smbd.service
+    state: started   
+    
+- name: sudo ufw allow samba
+  shell: "ufw allow samba"   
+
+- name: 'check samba access url '  
+  pause:
+    prompt: "Please check that can access to shared url  \\\\{{ ansible_host }}\\{{ es_snapshot_share_path_folder }}. Are you sure to continue? (yes/no)"
+  register: confirm_access_share    

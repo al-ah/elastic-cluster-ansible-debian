@@ -1,0 +1,97 @@
+---
+# tasks file for setupusers-elastic
+  
+- name: set elastic user password
+  expect:
+    command: '/usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic -s -i'
+    responses:
+      (.*)Please confirm that you would like to continue(.*): "y"  
+      (.*)Enter password for(.*): "{{ elastic_user_pass }}"  
+      (.*)Re-enter password for(.*): "{{ elastic_user_pass }}"  
+  ignore_errors: yes
+  timeout: 300  
+  
+- name: set logstash_system user password
+  expect:
+    command: '/usr/share/elasticsearch/bin/elasticsearch-reset-password -u logstash_system -s -i'
+    responses:
+      (.*)Please confirm that you would like to continue(.*): "y"  
+      (.*)Enter password for(.*): "{{ logstash_system_pass }}"  
+      (.*)Re-enter password for(.*): "{{ logstash_system_pass }}"  
+  ignore_errors: yes
+  timeout: 300
+  
+- name: set kibana_system user password
+  expect:
+    command: '/usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana_system -s -i'
+    responses:
+      (.*)Please confirm that you would like to continue(.*): "y"  
+      (.*)Enter password for(.*): "{{ kibana_system_pass }}"  
+      (.*)Re-enter password for(.*): "{{ kibana_system_pass }}"  
+  ignore_errors: yes
+  timeout: 300
+  
+- name: set kibana user password
+  expect:
+    command: '/usr/share/elasticsearch/bin/elasticsearch-reset-password -u kibana -s -i'
+    responses:
+      (.*)Please confirm that you would like to continue(.*): "y"  
+      (.*)Enter password for(.*): "{{ kibana_system_pass }}"  
+      (.*)Re-enter password for(.*): "{{ kibana_system_pass }}"  
+  ignore_errors: yes
+  timeout: 300
+
+## this method add users to cluster realm  
+- name: add admin user to elastic
+  command: 'curl -u"elastic:{{ elastic_user_pass }}" -k -XPOST "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/{{ admin_user }}" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ admin_password }}\",  \"roles\" : [\"superuser\",\"kibana_admin\",\"monitoring_user\"]}"'  
+  
+- name: add insert_data user to elastic
+  command: 'curl -u"elastic:{{ elastic_user_pass }}" -k -XPOST "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/insert_data" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ insert_data_pass }}\",  \"roles\" : [\"superuser\"]}"'  
+  
+- name: add read_data user to elastic
+  command: 'curl -u"elastic:{{ elastic_user_pass }}" -k -XPOST "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/read_data" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ read_data_pass }}\",  \"roles\" : [\"superuser\"]}"' 
+
+- name: add customer user to elastic
+  command: 'curl -u"elastic:{{ elastic_user_pass }}" -k -XPOST "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/{{ customer_user }}" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ customer_password }}\",  \"roles\" : [\"superuser\",\"kibana_admin\",\"monitoring_user\"]}"'  
+
+#### old method for setup users
+#- name: setup elasticsearch builtin passwords
+#  expect:
+#    command: '/usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto -u"https://{{ ansible_host }}.{{ domain_name }}:9200"'
+#    responses:
+#      (.*)Do you want to continue with the password setup process(.*): "y" 
+#      (.*)Please confirm that you would like to continue(.*): "y"  
+#  ignore_errors: yes
+#  timeout: 300
+  
+## this method add users to file realm  
+#- name: add admin user to elastic
+#  command: "/usr/share/elasticsearch/bin/elasticsearch-users useradd {{ admin_user }} -p {{ admin_password }} -r superuser" 
+#  ignore_errors: yes
+#
+#- name: add insert_data user to elastic
+#  command: "/usr/share/elasticsearch/bin/elasticsearch-users useradd insert_data -p {{ insert_data_pass }} -r superuser" 
+#  ignore_errors: yes
+#  
+#- name: add read_data user to elastic
+#  command: "/usr/share/elasticsearch/bin/elasticsearch-users useradd read_data -p {{ read_data_pass }} -r superuser" 
+#  ignore_errors: yes
+
+#- name: set elastic user password (second method)
+#  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/elastic/_password?pretty" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ elastic_user_pass }}\"}"'  
+#
+#- name: set logstash_system user password (second method)
+#  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/logstash_system/_password?pretty" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ logstash_system_pass }}\"}"'  
+#
+#- name: set kibana_system user password (second method)
+#  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/kibana_system/_password?pretty" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ kibana_system_pass }}\"}"'  
+#
+#- name: set kibana user password (second method)
+#  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_security/user/kibana/_password?pretty" -H "Content-Type: application/json" -d"{  \"password\" : \"{{ kibana_system_pass }}\"}"'   
+#
+
+#### end of old method for setup users
+
+- name: add license
+  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_license" -H "Content-Type: application/json" --data-binary @"{{ installation_files }}/license.json"'
+  ignore_errors: yes

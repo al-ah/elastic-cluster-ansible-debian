@@ -1,0 +1,99 @@
+---
+- name: stop elasticsearch service 
+  systemd:
+    name: elasticsearch.service
+    state: stopped
+
+- name: copy elasticsearch.service (prevent OOM killer)
+  copy:
+    src: 'elasticsearch-{{ elastic_version }}.service'
+    dest: '/usr/lib/systemd/system/elasticsearch.service'
+
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload
+  
+- name: 'check {{ elastic_path_repo_local }} directory exists' 
+  stat:
+    path: '{{ elastic_path_repo_local }}'
+  register: sabana_directorio
+    
+- name: 'set {{ elastic_path_repo_local }} owner'
+  shell: 'chown elasticsearch:elasticsearch {{ elastic_path_repo_local }}'
+  when: sabana_directorio.stat.exists == true
+    
+- name: 'Creates {{ elastic_path_repo_local }} directory'
+  file:
+    path: '{{ elastic_path_repo_local }}'
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+  when: sabana_directorio.stat.exists == false
+    
+- name: copy elasticsearch.yml
+  template: 
+    src: elasticsearch.yml.j2 
+    dest: /etc/elasticsearch/elasticsearch.yml
+
+- name: copy jvm.options
+  template:
+    src: jvm.options.j2 
+    dest: /etc/elasticsearch/jvm.options
+        
+- name: create certs directory
+  file:
+    path: "/etc/elasticsearch/certs"
+    state: directory
+
+- name: copy ca.crt
+  copy:
+    src: '/{{ this_ansible_folder }}/{{ certificate_path }}/ca/ca.crt'
+    dest: '/etc/elasticsearch/certs/ca.crt'
+
+- name: copy wildcard.crt
+  copy:
+    src: '/{{ this_ansible_folder }}/{{ certificate_path }}/wildcard/wildcard.crt'
+    dest: '/etc/elasticsearch/certs/wildcard.crt'
+
+- name: copy wildcard.key
+  copy:
+    src: '/{{ this_ansible_folder }}/{{ certificate_path }}/wildcard/wildcard.key'
+    dest: '/etc/elasticsearch/certs/wildcard.key'
+
+- name: set /var/lib/elasticsearch owner
+  file:
+    path: /var/lib/elasticsearch
+    owner: elasticsearch
+    group: elasticsearch
+    
+- name: start elasticsearch service 
+  systemd:
+    name: elasticsearch.service
+    state: started    
+  ignore_errors: yes
+    
+- name: pause after start elasticsearch service 
+  pause:
+    seconds: 30
+    
+- name: Get Elasticsearch Service Status
+  ansible.builtin.systemd:
+    name: "elasticsearch.service"
+  register: elasticsearch_service_status
+
+- debug:
+    var: elasticsearch_service_status.status.ActiveState
+    
+- name: systemctl start elasticsearch.service if not started
+  command: systemctl start elasticsearch.service
+  when: elasticsearch_service_status.status.ActiveState == "inactive"
+  ignore_errors: yes
+  
+- name: "Confirm elastic services started on {{ ansible_host }}"
+  pause:
+    prompt: "Please check in the other terminal that the required elastic services have been started on {{ ansible_host }}, else start it manualy, so that the continuation of the process will not be a problem. Are you sure to continue? (yes/no)"
+  register: confirm_execution   
+  
+- name: 'confirm_execution is yes or no' 
+  fail: msg="Play Book Canceled By Your Confirmaion"
+  when: confirm_execution is defined and confirm_execution.user_input == "no" ## whatever condition you want 
+  

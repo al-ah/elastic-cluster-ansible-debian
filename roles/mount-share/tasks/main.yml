@@ -1,0 +1,47 @@
+---
+# tasks file for mount-share
+  
+- name: 'check {{ elastic_path_repo_share }} directory exists' 
+  stat:
+    path: '{{ elastic_path_repo_share }}'
+  register: shared_directorio
+  
+- name: Creates directory
+  file:
+    path: '{{ elastic_path_repo_share }}'
+    state: directory  
+  when: shared_directorio.stat.exists == false
+    
+- name: 'set {{ elastic_path_repo_share }} owner'
+  shell: 'chown elasticsearch:elasticsearch {{ elastic_path_repo_share }}'
+  when: shared_directorio.stat.exists == true
+
+- name: create es_smbcredentials
+  file:
+    path: "/etc/es_smbcredentials"
+    state: directory
+
+- name: copy .smbcredentials
+  template: 
+    src: smbcredentials.j2
+    dest: /etc/es_smbcredentials/.smbcredentials
+
+- name: 'chmod 600 .smbcredentials'
+  shell: 'chmod 600 /etc/es_smbcredentials/.smbcredentials'
+  
+- name: "Check whether /etc/fstab contains {{ elastic_path_repo_share }}"
+  lineinfile:
+    path: /etc/fstab
+    regexp: '\/\/{{ es_snapshot_share_host }}\/{{ es_snapshot_share_path_folder }}.*?{{ elastic_path_repo_share }}'
+    state: absent
+  check_mode: yes
+  changed_when: false
+  register: mount_line_exists_in_fstab
+  
+- name: "add mount share folder line to /etc/fstab"   
+  shell: printf '//{{ es_snapshot_share_host }}/{{ es_snapshot_share_path_folder }}  {{ elastic_path_repo_share }}  cifs  credentials=/etc/es_smbcredentials/.smbcredentials,file_mode=0777,dir_mode=0777 0  0 \n' >> /etc/fstab
+  when: not mount_line_exists_in_fstab.found  
+
+- name: "reload /etc/fstab"   
+  shell: 'mount -a'
+  

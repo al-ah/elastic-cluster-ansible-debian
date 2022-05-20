@@ -92,6 +92,6 @@
 
 #### end of old method for setup users
 
-- name: add license
-  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_license" -H "Content-Type: application/json" --data-binary @"{{ installation_files }}/license.json"'
-  ignore_errors: yes
+#- name: add license
+#  command: 'curl -u"{{ admin_user }}:{{ admin_password }}" -k -XPUT "https://{{ ansible_host }}.{{ domain_name }}:9200/_license" -H "Content-Type: application/json" --data-binary @"{{ installation_files }}/license.json"'
+#  ignore_errors: yes

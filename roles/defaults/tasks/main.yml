@@ -28,8 +28,9 @@
     src: '{{ installation_files }}/curl.deb'
     dest: '{{ installation_files }}/curl.deb'
     
-#- name: install curl.deb 
-#  command: dpkg -i {{ installation_files }}/curl.deb
+- name: install curl.deb 
+  command: dpkg -i {{ installation_files }}/curl.deb
+  ignore_errors: yes
 
 - name: copy locate.deb file to the host
   copy:
@@ -60,8 +61,9 @@
     src: '{{ installation_files }}/yamllint'
     dest: '{{ installation_files }}'    
     
-#- name: install yamllint 
-#  command: dpkg -R --install {{ installation_files }}/yamllint/
+- name: install yamllint 
+  command: dpkg -R --install {{ installation_files }}/yamllint/
+  ignore_errors: yes
 
 - name: copy unzip.deb file to the host
   copy:
@@ -70,3 +72,4 @@
     
 - name: install unzip.deb 
   command: dpkg -i {{ installation_files }}/unzip.deb
+  ignore_errors: yes

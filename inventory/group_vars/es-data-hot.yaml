@@ -1,6 +1,6 @@
 #It is recommended to use at most 50% of the total available RAM, but in no case should the heap size exceed the limit of 32GB. Preferably, it should be less than 26GB. That is the point at which object pointers are not zero based anymore and performance drops. 
-elastic_jvm_min: 512m
-elastic_jvm_max: 512m
+elastic_jvm_min: 2g
+elastic_jvm_max: 2g
 
 elastic_node_roles: [data_content, data_hot]
 

@@ -1,3 +1,4 @@
+### for cluster mode ###
 [es-master]
 es-master-01
 es-master-02
@@ -26,5 +27,19 @@ es-snapshot-01
 
 #[fleet-server]
 #not defined yet
+
+### end of cluster mode  ###
+
+### for single node ###
+#[es-master]
+#es-single
+#
+#[initial-master]
+#es-single
+#
+#[es-kibana]
+#es-single
+### end of single node ###
+
 
 [all]

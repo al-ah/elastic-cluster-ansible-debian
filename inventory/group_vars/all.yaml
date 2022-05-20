@@ -27,7 +27,7 @@ elastic_discovery_seed_hosts: ["es-master-01","es-master-02","es-master-03"]
 elastic_cluster_initial_master_nodes: ["es-master-01"]
 
 elastic_path_repo_local: "/elasticsearch_snapshots_local"
-## maped share path, comment it if not exists
+## maped share path, comment it if not exists or when install single mode( non cluster)
 elastic_path_repo_share: "/elasticsearch_snapshots_share"
 
 ## used for shared path.repo in elasticsearch nodes

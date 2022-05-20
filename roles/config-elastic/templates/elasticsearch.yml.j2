@@ -19,6 +19,8 @@ xpack.security.transport.ssl.certificate: certs/wildcard.crt
 xpack.security.transport.ssl.certificate_authorities: certs/ca.crt
 xpack.security.transport.ssl.verification_mode: certificate
 
+xpack.security.authc.api_key.enabled: true
+
 ## for single node or cluster
 {% if elastic_discovery_seed_hosts is defined %}
 discovery.seed_hosts: {{ elastic_discovery_seed_hosts }}

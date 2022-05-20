@@ -1,0 +1,19 @@
+---
+### besme allah
+### author: ali.ahmadi
+
+- hosts: all
+  become: yes
+  #vars_files:
+  #  - vars/user-inputs.yaml
+  roles:
+    - role: defaults
+      #when: confirm_defaults_on_all.user_input | bool
+            
+- hosts: es-kibana
+  become: yes
+  tasks:   
+  - import_role:
+      name: install-kibana
+  - import_role:
+      name: config-kibana

@@ -2,7 +2,7 @@
 # besme allah
 # author: ali.ahmadi
 
-- hosts: es-master
+- hosts: es-ingest
   become: yes
   tasks:   
   - import_role:

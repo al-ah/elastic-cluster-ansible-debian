@@ -25,8 +25,11 @@ es-ingest-01
 [es-snapshot-share]
 es-snapshot-01
 
-#[fleet-server]
-#not defined yet
+[es-fleet-server]
+es-ingest-01
+
+[es-elastic-agent]
+
 
 ### end of cluster mode  ###
 

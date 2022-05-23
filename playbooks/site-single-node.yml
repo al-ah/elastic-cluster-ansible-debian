@@ -19,6 +19,12 @@
   - import_role:
       name: make-certificate
       
+- hosts: all
+  become: yes
+  tasks:   
+  - import_role:
+      name: update-ca-certificates
+      
 - hosts: es-master
   become: yes
   tasks:   

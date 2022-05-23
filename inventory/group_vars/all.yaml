@@ -46,5 +46,11 @@ beats_number_of_replicas: 0
 beats_codec: best_compression
 
 ## use in elastic agent and logstash for connect to elasticsearch (without http/https )
-ingest_data_hosts: [ "https://es-ingest-01.{{ domain_name }}:9200" ]
+ingest_data_hosts: [ "es-ingest-01.{{ domain_name }}:9200" ]
 
+## node name for install fleet server
+## after complete installation you can get elastic_agent_enrollment_token from fleet server policy
+## dont set fleet_server_hosts and fleet_server_es_output as array
+elastic_agent_fleet_server_hosts: "https://es-ingest-01.{{ domain_name }}:8220"
+elastic_agent_fleet_server_es_output: "https://es-ingest-01.{{ domain_name }}:9200"
+elastic_agent_enrollment_token: ""

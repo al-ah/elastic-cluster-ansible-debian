@@ -1,0 +1,10 @@
+---
+# tasks file for update-ca-certificates
+
+- name: copy ca.crt
+  copy:
+    src: '/{{ this_ansible_folder }}/{{ certificate_path }}/ca/ca.crt'
+    dest: '/usr/local/share/ca-certificates/MyElasticsearchCA.crt'
+
+- name: update ca certificates
+  shell: "update-ca-certificates --fresh"

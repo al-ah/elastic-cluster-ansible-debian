@@ -88,7 +88,7 @@
   when: elasticsearch_service_status.status.ActiveState == "inactive"
   ignore_errors: yes
   
-- name: "Confirm elastic services started on {{ ansible_host }}"
+- name: Confirm elastic services started
   pause:
     prompt: "Please check in the other terminal that the required elastic services have been started on {{ ansible_host }}, else start it manualy, so that the continuation of the process will not be a problem. Are you sure to continue? (yes/no)"
   register: confirm_execution   

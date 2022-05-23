@@ -1,0 +1,80 @@
+---
+# tasks file for config-elastic-agent
+- name: stop elastic-agent service 
+  systemd:
+    name: elastic-agent.service
+    state: stopped
+  ignore_errors: yes
+  
+#- name: uninstall current elastic-agent
+#  shell:
+#    cmd: './elastic-agent uninstall'
+#    chdir: /usr/bin
+#  ignore_errors: yes
+  
+- name: uninstall current elastic-agent
+  shell:
+    cmd: 'rm -rf /opt/Elastic/Agent'
+  ignore_errors: yes
+  
+- name: create certs directory
+  file:
+    path: "/elastic-agent/certs"
+    state: directory
+
+- name: copy ca.crt
+  copy:
+    src: '/{{ this_ansible_folder }}/{{ certificate_path }}/ca/ca.crt'
+    dest: '/elastic-agent/certs/ca.crt'
+
+- name: copy wildcard.crt
+  copy:
+    src: '/{{ this_ansible_folder }}/{{ certificate_path }}/wildcard/wildcard.crt'
+    dest: '/elastic-agent/certs/wildcard.crt'
+
+- name: copy wildcard.key
+  copy:
+    src: '/{{ this_ansible_folder }}/{{ certificate_path }}/wildcard/wildcard.key'
+    dest: '/elastic-agent/certs/wildcard.key'
+
+- name: "insert enroll_into_fleet"
+  pause:
+    prompt: "Do you want to enroll this Agent into Fleet? (yes/no)"
+  register: enroll_into_fleet   
+  
+- name: "insert fleet-server service-token"
+  pause:
+    prompt: "Please insert elastic_agent_service_token"
+  register: elastic_agent_service_token  
+  when: (enroll_into_fleet.user_input == "y" or enroll_into_fleet.user_input == "yes" )
+  
+- name: install elastic-agent as fleet server
+  expect:
+    chdir: /elastic-agent
+    command: './elastic-agent install --url={{ elastic_agent_fleet_server_hosts }} --enrollment-token={{ elastic_agent_enrollment_token }} --fleet-server-es={{ elastic_agent_fleet_server_es_output }} --fleet-server-service-token={{ elastic_agent_service_token.user_input }} --fleet-server-es-ca=/elastic-agent/certs/ca.crt --certificate-authorities=/elastic-agent/certs/ca.crt  --fleet-server-cert=/elastic-agent/certs/wildcard.crt --fleet-server-cert-key=/elastic-agent/certs/wildcard.key'
+    responses:
+      (.*)Continuing will re-install Elastic Agent over the current installation at /opt/Elastic/Agent. Do you want to continue?(.*): "y"   
+      (.*)Do you want to continue?(.*): "y"   
+      (.*)Do you want to enroll this Agent into Fleet?(.*): "yes"   
+  ignore_errors: yes
+  timeout: 300  
+  when: (enroll_into_fleet.user_input == "y" or enroll_into_fleet.user_input == "yes" )
+  
+- name: install elastic-agent (non fleet server)
+  expect:
+    chdir: /elastic-agent
+    command: './elastic-agent install --url={{ elastic_agent_fleet_server_hosts }} --enrollment-token={{ elastic_agent_enrollment_token }}'
+    responses:
+      (.*)Continuing will re-install Elastic Agent over the current installation at /opt/Elastic/Agent. Do you want to continue?(.*): "y"   
+      (.*)Do you want to continue?(.*): "y"   
+      (.*)Do you want to enroll this Agent into Fleet?(.*): "no"   
+  ignore_errors: yes
+  timeout: 300
+  when: not(enroll_into_fleet.user_input == "y" or enroll_into_fleet.user_input == "yes")
+
+- name: systemctl daemon-reload 
+  command: systemctl daemon-reload 
+  
+- name: enable elastic agent service
+  command: systemctl enable elastic-agent.service
+  

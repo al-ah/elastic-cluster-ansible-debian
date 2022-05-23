@@ -46,10 +46,16 @@ pid.file: /run/kibana/kibana.pid
 
 monitoring.ui.ccs.enabled: false
 
-{% if ingest_data_hosts is defined %}
-xpack.fleet.outputs: [{id: fleet-default-output, name: default, is_default: true, is_default_monitoring: true, type: elasticsearch, hosts: {{ ingest_data_hosts }}}]
+{% if elastic_agent_fleet_server_hosts is defined %}
+xpack.fleet.agents.fleet_server.hosts: [{{ elastic_agent_fleet_server_hosts }}]
 {% else %}
-#xpack.fleet.outputs: [{id: fleet-default-output, name: default, is_default: true, is_default_monitoring: true, type: elasticsearch, hosts: {{ ingest_data_hosts }}}]
+#xpack.fleet.agents.fleet_server.hosts: []
+{% endif %}
+
+{% if elastic_agent_fleet_server_es_output is defined %}
+xpack.fleet.outputs: [{id: fleet-default-output, name: default, is_default: true, is_default_monitoring: true, type: elasticsearch, hosts: [{{ elastic_agent_fleet_server_es_output }}] }]
+{% else %}
+#xpack.fleet.outputs: [{id: fleet-default-output, name: default, is_default: true, is_default_monitoring: true, type: elasticsearch, hosts: [] }]
 {% endif %}
 
 

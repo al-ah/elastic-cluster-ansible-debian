@@ -2,4 +2,4 @@
 elastic_jvm_min: 1g
 elastic_jvm_max: 1g
 
-elastic_node_roles: [ingest, transform, remote_cluster_client]
+elastic_node_roles: [ingest, transform]
